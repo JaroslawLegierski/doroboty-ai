@@ -3,6 +3,13 @@ import AxeBuilder from "@axe-core/playwright";
 import { initialState } from "../../src/features/prototype/model";
 import { STORAGE_KEY } from "../../src/features/prototype/storage";
 import { readFile } from "node:fs/promises";
+function unexpectedRequest(url: string) {
+  const baseURL = test.info().project.use.baseURL!;
+  return (
+    !url.startsWith(baseURL) &&
+    !/^(?:data:|blob:|https:\/\/(?:eu\.i|eu-assets\.i)\.posthog\.com\/)/.test(url)
+  );
+}
 async function choose(page: Page, name: string) {
   await page.goto("/#/auth/sign-in");
   await page.getByRole("button", { name: `Wejdź jako ${name}`, exact: true }).click();
@@ -28,7 +35,7 @@ for (const [name, filename] of [
   }) => {
     const external: string[] = [];
     page.on("request", (request) => {
-      if (!request.url().startsWith("http://127.0.0.1:3106")) external.push(request.url());
+      if (unexpectedRequest(request.url())) external.push(request.url());
     });
     await choose(page, name);
     await page.goto("/#/app/profil");
@@ -88,12 +95,7 @@ test("published job → saved offer/draft → submitted application → employer
   const external: string[] = [];
   const errors: string[] = [];
   page.on("request", (r) => {
-    if (
-      !r.url().startsWith("http://127.0.0.1:3106") &&
-      !r.url().startsWith("data:") &&
-      !r.url().startsWith("blob:")
-    )
-      external.push(r.url());
+    if (unexpectedRequest(r.url())) external.push(r.url());
   });
   page.on("pageerror", (e) => errors.push(e.message));
   await choose(page, "Karolina Wiśniewska");
@@ -256,7 +258,7 @@ test("map, hash deep links and unknown records work without external requests", 
 }) => {
   const external: string[] = [];
   page.on("request", (r) => {
-    if (r.url().startsWith("https://")) external.push(r.url());
+    if (unexpectedRequest(r.url())) external.push(r.url());
   });
   await page.goto("/#/oferty?view=map");
   await page

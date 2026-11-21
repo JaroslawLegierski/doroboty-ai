@@ -1,5 +1,6 @@
 import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { usePostHog } from "@posthog/react";
 import { ArrowUpRight, Users, MapPin, BriefcaseBusiness, Bookmark } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Search, ArrowRight, Monitor, X } from "lucide-react";
@@ -342,6 +343,10 @@ export function JobPage() {
     return () => cancelAnimationFrame(frame);
   }, [location.hash, location.key, slug]);
   const { state, run } = usePrototype();
+  const posthog = usePostHog();
+  const posthogEnabled = Boolean(
+    import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN && import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  );
   const person = currentPerson(state);
   const job = publishedJobs(state).find((x) => x.slug === slug);
   if (!job) return <NotFound />;
@@ -430,7 +435,19 @@ export function JobPage() {
                     variant="outline"
                     aria-label="Zapisz ofertę"
                     aria-pressed={saved}
-                    onClick={() => run({ type: "toggle_saved", jobId: job.id })}
+                    onClick={() => {
+                      if (!saved) {
+                        if (run({ type: "toggle_saved", jobId: job.id }) && posthogEnabled) {
+                          posthog.capture("job_saved", {
+                            job_category: job.category,
+                            job_seniority: job.seniority,
+                            job_remote_status: job.remoteStatus,
+                          });
+                        }
+                        return;
+                      }
+                      run({ type: "toggle_saved", jobId: job.id });
+                    }}
                   >
                     <Bookmark className={cn(saved && "fill-current")} />
                     Zapisz ofertę
