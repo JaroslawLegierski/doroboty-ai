@@ -81,10 +81,14 @@ Stable IDs are retained, including explicit removed entries. The legacy duplicat
 
 ## Sources and coverage
 
+### Optional PostHog integration
+
+With both public PostHog build variables configured, the browser SDK captures public hash-route pageviews, clicks on public links/buttons and the six explicit successful-action events added by the wizard. Private `/app`, `/auth` and `/aplikuj` routes, forms, editable fields and dialogs are excluded from Autocapture. Session recordings mask all text and inputs, block private screens and stop on private routes. Persona names are not identified; searches and private URL record IDs are redacted. Console recording is disabled. Without the variables, production analytics stays inactive. See `docs/tasks/posthog-deploy.md` for execution evidence.
+
 - Routing and UI: [prototype features](src/features/prototype/), [shared controls](src/components/ui/), [theme](GUI.md).
 - Data and boundaries: [model](src/features/prototype/model.ts), [storage](src/features/prototype/storage.ts), [fixtures](src/features/prototype/data/), [baseline protocol](docs/case/CASE_PROTOCOL.md).
 - Behavior checks: [model/storage tests](src/features/prototype/), [browser journeys](tests/e2e/) including persona PDF downloads and snapshot continuity, [packet tooling](scripts/). Existing job filter/pagination/description tests remain.
 
 ## Current implementation limits
 
-No real login, email, binary upload, production CVs, provider AI, confidential roles, backend, collaboration across devices, cloud analytics or live experiment measurement. A static URL shares code, not local state; exported JSON contains the entire scenario. Human testing, publishing, CI results and course approval must be verified separately.
+No real login, email, binary upload, production CVs, provider AI, confidential roles, backend, collaboration across devices or live experiment measurement. Optional PostHog analytics does not establish product effectiveness. A static URL shares code, not local state; exported JSON contains the entire scenario. Human testing, publishing, CI results and course approval must be verified separately.

@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { PostHogErrorBoundary, PostHogProvider } from "@posthog/react";
 import posthog from "posthog-js";
+import { privacyConfig } from "./lib/posthog-privacy";
 import { App } from "./features/prototype/app";
 import "./app/globals.css";
 
@@ -24,6 +25,7 @@ if (!posthogToken) {
   posthog.init(posthogToken, {
     api_host: posthogHost,
     defaults: "2026-08-30",
+    ...privacyConfig,
     logs: {
       serviceName: "doroboty-ai-web",
       environment: import.meta.env.MODE,

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePostHog } from "@posthog/react";
-import { HashRouter, Routes, Route, Navigate } from "react-router";
+import { HashRouter, Routes, Route, Navigate, useLocation } from "react-router";
+import { privateRoute } from "@/lib/posthog-privacy";
 import { PrototypeProvider, usePrototype } from "./store";
 import { Shell, NotFound } from "./shell";
 import HomePage from "./home";
@@ -42,10 +43,34 @@ function PostHogIdentity() {
     if (previousPersonId.current === person.id) return;
     if (previousPersonId.current) posthog.reset();
 
-    posthog.identify(person.id, { name: person.name, role: person.role });
+    posthog.identify(person.id, { role: person.role });
     previousPersonId.current = person.id;
   }, [person, posthog, posthogEnabled]);
 
+  return null;
+}
+
+function PostHogNavigation() {
+  const { pathname } = useLocation();
+  const posthog = usePostHog();
+  const previousPath = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      !import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN ||
+      !import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+    )
+      return;
+    if (privateRoute.test(window.location.href)) {
+      posthog.stopSessionRecording();
+      previousPath.current = null;
+      return;
+    }
+    posthog.startSessionRecording();
+    if (previousPath.current !== pathname) {
+      posthog.capture("$pageview", { $current_url: `${window.location.origin}/#${pathname}` });
+      previousPath.current = pathname;
+    }
+  }, [pathname, posthog]);
   return null;
 }
 
@@ -184,6 +209,7 @@ export function App() {
     <PrototypeProvider>
       <PostHogIdentity />
       <HashRouter>
+        <PostHogNavigation />
         <AppRoutes />
       </HashRouter>
     </PrototypeProvider>

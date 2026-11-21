@@ -1,4 +1,5 @@
 node_modules/
+.netlify/
 dist/
 coverage/
 playwright-report*/
@@ -7,5 +8,6 @@ artifacts/
 .DS_Store
 *.tsbuildinfo
 .env*
+!.env.example
 npm-debug.log*
 .env

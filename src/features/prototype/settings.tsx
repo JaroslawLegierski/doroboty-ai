@@ -124,8 +124,10 @@ export function PrivacyPage() {
           ani poufnych informacji.
         </p>
         <p>
-          Profile, aplikacje i ustawienia pozostają w pamięci tej przeglądarki. Aplikacja nie wysyła
-          ich do bazy, dostawcy AI ani systemu analitycznego. Plik eksportu zawiera cały lokalny
+          Profile, aplikacje i ustawienia pozostają w pamięci tej przeglądarki. PostHog zbiera
+          zdarzenia użycia i nagrania publicznych ekranów z maskowaniem tekstu oraz pól. Prywatne
+          ekrany, formularze i dialogi są wyłączone z Autocapture i nagrań. Zdarzenia wykonanych
+          działań nie zawierają treści CV ani odpowiedzi. Plik eksportu zawiera cały lokalny
           scenariusz, w tym notatki.
         </p>
         <p>

@@ -112,7 +112,12 @@ export function Shell() {
     </>
   );
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div
+      className={cn(
+        "min-h-dvh bg-background text-foreground",
+        /^(\/app|\/auth|\/aplikuj)(\/|$)/.test(pathname) && "ph-no-capture",
+      )}
+    >
       <a
         href="#main"
         className="skip-link"
